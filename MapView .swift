@@ -65,7 +65,7 @@ struct MapView: UIViewRepresentable {
                 annotationview = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
                 
                 annotationview?.canShowCallout = true
-                annotationview?.isDraggable = true 
+                
                 annotationview?.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
             }else {
                 annotationview?.annotation = annotation
