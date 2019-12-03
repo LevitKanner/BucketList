@@ -11,7 +11,6 @@ import LocalAuthentication
 import MapKit
 
 struct ContentView: View {
-    @State private var isUnLocked = false
     @State private var centerCoordinate = CLLocationCoordinate2D()
     @State private var locations = [MKPointAnnotation]()
     @State private var selectedPlace: MKPointAnnotation?
@@ -20,9 +19,7 @@ struct ContentView: View {
       
     
     var body: some View {
-        VStack{
-            if isUnLocked{
-                AnyView(
+ 
                     ZStack{
                         MapView(centerCoordinate: self.$centerCoordinate, annotations: self.locations, selectedPlace: self.$selectedPlace, showingPlaceDetails: self.$showingPlaceDetails)
                             .edgesIgnoringSafeArea(.all)
@@ -75,16 +72,6 @@ struct ContentView: View {
                                 EditingView(placeMark: self.selectedPlace!)
                             }
                         })
-                )
-                
-                
-            }else{
-                AnyView(Text("App locked"))
-            }
-        }
-        .onAppear {
-            self.authenticate()
-        }
     }
     
     func authenticate(){
@@ -101,7 +88,7 @@ struct ContentView: View {
                 DispatchQueue.main.async {
                     if success {
                         //authenticated successfully
-                        self.isUnLocked = true
+                        
                     }else{
                         //There was a problem
                     }
