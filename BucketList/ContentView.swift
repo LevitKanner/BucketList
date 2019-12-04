@@ -12,7 +12,7 @@ import MapKit
 
 struct ContentView: View {
     @State private var centerCoordinate = CLLocationCoordinate2D()
-    @State private var locations = [MKPointAnnotation]()
+    @State private var locations = [CodableMKPointAnnotation]()
     @State private var selectedPlace: MKPointAnnotation?
     @State private var showingPlaceDetails = false
     @State private var showingEditView = false
@@ -38,10 +38,10 @@ struct ContentView: View {
                                 Button(action:{
                                     //Button action to come soon
                                     
-                                    let newLocation = MKPointAnnotation()
+                                    let newLocation = CodableMKPointAnnotation()
                                     newLocation.title = "Provide place name"
                                     newLocation.coordinate = self.centerCoordinate
-                                    self.locations.append(newLocation)
+                                    self.locations.append(newLocation )
                                     
                                     self.selectedPlace = newLocation
                                     self.showingEditView = true
@@ -67,13 +67,46 @@ struct ContentView: View {
                             self.showingEditView = true
                             })
                     })
-                        .sheet(isPresented: $showingEditView, content: {
+                        .sheet(isPresented: $showingEditView,onDismiss: saveData , content: {
                             if self.selectedPlace != nil {
                                 EditingView(placeMark: self.selectedPlace!)
                             }
                         })
+                        .onAppear(perform: loadData)
     }
     
+    //Get file directory url
+    func getFileDirectory() -> URL{
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }
+    
+    //Load data from file directory
+    func loadData(){
+        let filename = getFileDirectory().appendingPathComponent("SavedPlace")
+        
+        do {
+            let data = try Data(contentsOf: filename)
+            locations = try JSONDecoder().decode([CodableMKPointAnnotation].self, from: data)
+            
+        }catch{
+            debugPrint(error)
+        }
+    }
+    
+    //Save data to file directory
+    func saveData(){
+        let filename = getFileDirectory().appendingPathComponent("SavedPlaces")
+        let data = try? JSONEncoder().encode(self.locations)
+        do{
+            try data?.write(to: filename, options: [.atomic , .completeFileProtection])
+        }catch{
+            debugPrint(error)
+        }
+    }
+    
+    
+    //Authenticate user
     func authenticate(){
         
         let context = LAContext()
