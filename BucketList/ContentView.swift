@@ -17,6 +17,7 @@ struct ContentView: View {
     @State private var showingPlaceDetails = false
     @State private var showingEditView = false
     @State private var unLocked = false
+    @State private var authenticationErrorOccured = false
     
     var body: some View {
         
@@ -73,7 +74,7 @@ struct ContentView: View {
                 }
             }
         .alert(isPresented: $showingPlaceDetails, content: { () -> Alert in
-            Alert(title: Text(selectedPlace?.title ?? "Unknown place"), message: Text(selectedPlace?.subtitle ?? "Missing place information"), primaryButton: .default(Text("Okay")), secondaryButton: .default(Text("edit")){
+            Alert(title: Text(authenticationErrorOccured ? "An authentication error occured" : selectedPlace?.title ?? "Unknown place"), message: Text(authenticationErrorOccured ? "Please try unlocking the app again" : selectedPlace?.subtitle ?? "Missing place information"), primaryButton: .default(Text("Okay")), secondaryButton: .default(Text("edit")){
                 self.showingEditView = true
                 })
         })
@@ -93,7 +94,7 @@ struct ContentView: View {
     
     //Load data from file directory
     func loadData(){
-        let filename = getFileDirectory().appendingPathComponent("SavedPlace")
+        let filename = getFileDirectory().appendingPathComponent("SavedPlaces")
         
         do {
             let data = try Data(contentsOf: filename)
@@ -131,11 +132,12 @@ struct ContentView: View {
                         self.unLocked = true
                     }else{
                         debugPrint(error!)
+                        self.authenticationErrorOccured = true
                     }
                 }
             }
         }else {
-            print("Device doesn't support biometric authentication")
+            self.authenticationErrorOccured = true
         }
     }
     
